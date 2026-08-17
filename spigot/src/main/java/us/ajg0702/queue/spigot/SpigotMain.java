@@ -15,6 +15,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
+import us.ajg0702.queue.spigot.utils.FoliaScheduler;
 import us.ajg0702.utils.common.ConfigFile;
 
 import java.io.File;
@@ -32,7 +33,9 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 
 	@SuppressWarnings("ConstantConditions")
 	public void onEnable() {
+		getServer().getMessenger().registerIncomingPluginChannel(this, "simplequeue:tospigot", this);
 		getServer().getMessenger().registerIncomingPluginChannel(this, "ajqueue:tospigot", this);
+		getServer().getMessenger().registerOutgoingPluginChannel(this, "simplequeue:toproxy");
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "ajqueue:toproxy");
 
 		this.getCommand("move").setExecutor(new Commands(this));
@@ -43,12 +46,13 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 		papi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
 		if(papi) {
-			placeholders = new Placeholders(this);
+			placeholders = new Placeholders(this, "simplequeue");
 			placeholders.register();
-			getLogger().info("Registered PlaceholderAPI placeholders");
+			new Placeholders(this, "ajqueue").register();
+			getLogger().info("Registered SimpleQueue and ajQueue PlaceholderAPI expansions");
 		}
 
-		Bukkit.getScheduler().runTaskTimer(this, () -> {
+		FoliaScheduler.runTimer(this, () -> {
 			if(Bukkit.getOnlinePlayers().size() <= 0 || queuebatch.size() <= 0) return;
 			StringBuilder msg = new StringBuilder();
 			for(Player p : queuebatch.keySet()) {
@@ -86,7 +90,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-		if (!channel.equals("ajqueue:tospigot")) return;
+		if (!channel.equals("simplequeue:tospigot") && !channel.equals("ajqueue:tospigot")) return;
 
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 
@@ -106,91 +110,63 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    if(subchannel.equals("queuename") && papi) {
 	    	String playername = in.readUTF();
 	    	Player p = Bukkit.getPlayer(playername);
-	    	if(p == null) return;
-	    	if(!p.isOnline()) return;
+	    	if(p == null || !p.isOnline()) return;
 
 	    	String data = in.readUTF();
-	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
-	    	if(phs == null) phs = new HashMap<>();
-	    	phs.put("queued", data);
-	    	placeholders.responseCache.put(p, phs);
+	    	placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("queued", data);
 	    }
 	    if(subchannel.equals("position") && papi) {
 	    	String playername = in.readUTF();
 	    	Player p = Bukkit.getPlayer(playername);
-	    	if(p == null) return;
-	    	if(!p.isOnline()) return;
+	    	if(p == null || !p.isOnline()) return;
 
 	    	String data = in.readUTF();
-	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
-	    	if(phs == null) phs = new HashMap<>();
-	    	phs.put("position", data);
-	    	placeholders.responseCache.put(p, phs);
+	    	placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("position", data);
 	    }
 	    if(subchannel.equals("positionof") && papi) {
 	    	String playername = in.readUTF();
 	    	Player p = Bukkit.getPlayer(playername);
-	    	if(p == null) return;
-	    	if(!p.isOnline()) return;
+	    	if(p == null || !p.isOnline()) return;
 
 	    	String data = in.readUTF();
-	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
-	    	if(phs == null) phs = new HashMap<>();
-	    	phs.put("of", data);
-	    	placeholders.responseCache.put(p, phs);
+	    	placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("of", data);
 	    }
 	    if(subchannel.equals("inqueue") && papi) {
 	    	String playername = in.readUTF();
 	    	Player p = Bukkit.getPlayer(playername);
-	    	if(p == null) return;
-	    	if(!p.isOnline()) return;
+	    	if(p == null || !p.isOnline()) return;
 
 	    	String data = in.readUTF();
-	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
-	    	if(phs == null) phs = new HashMap<>();
-	    	phs.put("inqueue", data);
-	    	placeholders.responseCache.put(p, phs);
+	    	placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("inqueue", data);
 	    }
 	    if(subchannel.equals("queuedfor")) {
 	    	String playername = in.readUTF();
 	    	String queuename = in.readUTF();
 
 	    	Player p = Bukkit.getPlayer(playername);
-	    	if(p == null) return;
-	    	if(!p.isOnline()) return;
+	    	if(p == null || !p.isOnline()) return;
 
 	    	int number = Integer.parseInt(in.readUTF());
-	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
-	    	if(phs == null) phs = new HashMap<>();
-	    	phs.put("queuedfor_"+queuename, number+"");
-	    	placeholders.responseCache.put(p, phs);
+	    	placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("queuedfor_"+queuename, String.valueOf(number));
 	    }
 		if(subchannel.equals("estimated_time")) {
 			String playername = in.readUTF();
 
 			Player p = Bukkit.getPlayer(playername);
-			if(p == null) return;
-			if(!p.isOnline()) return;
+			if(p == null || !p.isOnline()) return;
 
 			String time = in.readUTF();
-			HashMap<String, String> phs = placeholders.responseCache.get(p);
-			if(phs == null) phs = new HashMap<>();
-			phs.put("estimated_time", time);
-			placeholders.responseCache.put(p, phs);
+			placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("estimated_time", time);
 		}
 		if(subchannel.equals("status")) {
 			String playername = in.readUTF();
 			String server = in.readUTF();
 
 			Player p = Bukkit.getPlayer(playername);
-			if(p == null) return;
-			if(!p.isOnline()) return;
+			if(p == null || !p.isOnline()) return;
 
 			String status = in.readUTF();
-			HashMap<String, String> phs = placeholders.responseCache.get(p);
-			if(phs == null) phs = new HashMap<>();
-			phs.put("status_"+server, status+"");
-			placeholders.responseCache.put(p, phs);
+			placeholders.responseCache.computeIfAbsent(p, k -> new java.util.concurrent.ConcurrentHashMap<>()).put("status_"+server, status);
 		}
 	}
 
@@ -200,16 +176,20 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 		out.writeUTF(subchannel);
 		out.writeUTF(data);
 
-		player.sendPluginMessage(this, "ajqueue:toproxy", out.toByteArray());
+		try {
+			player.sendPluginMessage(this, "simplequeue:toproxy", out.toByteArray());
+		} catch (Exception ignored) {}
+		try {
+			player.sendPluginMessage(this, "ajqueue:toproxy", out.toByteArray());
+		} catch (Exception ignored) {}
 	}
 
 	public void sendMessage(String subchannel, String data) {
-		ByteArrayDataOutput out = ByteStreams.newDataOutput();
-		out.writeUTF(subchannel);
-		out.writeUTF(data);
-
-		Bukkit.getOnlinePlayers().iterator().next()
-		.sendPluginMessage(this, "ajqueue:toproxy", out.toByteArray());
+		if (Bukkit.getOnlinePlayers().isEmpty()) return;
+		Player player = Bukkit.getOnlinePlayers().iterator().next();
+		if (player != null) {
+			sendMessage(player, subchannel, data);
+		}
 	}
 
 	@EventHandler
@@ -221,7 +201,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		if(hasProxy) return;
-		Bukkit.getScheduler().runTask(this, () -> sendMessage(e.getPlayer(), "ack", ""));
+		FoliaScheduler.runSyncForPlayer(this, e.getPlayer(), () -> sendMessage(e.getPlayer(), "ack", ""));
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)

@@ -2,13 +2,14 @@
 
 SimpleQueue is a queue plugin designed for Minecraft networks. It helps manage player traffic when connecting between servers, preventing server lag and crashes during peak join times.
 
-The plugin runs on Velocity, BungeeCord, and backend Paper/Spigot servers using a single jar file.
+The plugin runs on Velocity, BungeeCord, Paper, Folia, and Spigot servers using a single jar file.
 
 ---
 
 ## Features
 
 - Automatic queueing when players switch servers (via commands, NPCs, compass menus, or portals).
+- Native Folia support with multi-threaded region schedulers.
 - Configurable delay between player joins (default 3 seconds).
 - Multi-level priority permissions for donor ranks.
 - LuckPerms context support for server-specific priority and bypasses.
@@ -31,7 +32,7 @@ You only need one file: `SimpleQueue-2.2.9.jar`.
 3. Restart your proxy.
 4. Edit `plugins/SimpleQueue/config.yml` if needed, then run `/simplequeue reload`.
 
-### 2. On your Backend Servers (Paper, Purpur, Spigot) - Optional
+### 2. On your Backend Servers (Paper, Folia, Purpur, Spigot) - Optional
 You only need to put the jar on backend servers if you want to use PlaceholderAPI placeholders on scoreboards, tablists, or holograms.
 1. Put `SimpleQueue-2.2.9.jar` into your backend server's `plugins` folder.
 2. Restart the backend server.
@@ -111,14 +112,14 @@ All legacy `ajqueue.*` permissions are also supported for backwards compatibilit
 
 ## Placeholders (PlaceholderAPI)
 
-When installed on backend servers, these placeholders are available:
+When installed on backend servers, both `%simplequeue_*` and `%ajqueue_*` placeholders are supported:
 
-- `%ajqueue_position%` - Player's current position in queue.
-- `%ajqueue_positionof%` - Total number of players in the queue.
-- `%ajqueue_inqueue%` - Whether the player is currently in a queue (`true`/`false`).
-- `%ajqueue_queuename%` - Name of the server the player is queued for.
-- `%ajqueue_queuelength_<server>%` - Number of players queued for a specific server.
-- `%ajqueue_esttime%` - Estimated wait time.
+- `%simplequeue_position%` - Player's current position in queue.
+- `%simplequeue_positionof%` - Total number of players in the queue.
+- `%simplequeue_inqueue%` - Whether the player is currently in a queue (`true`/`false`).
+- `%simplequeue_queuename%` - Name of the server the player is queued for.
+- `%simplequeue_queuelength_<server>%` - Number of players queued for a specific server.
+- `%simplequeue_estimated_time%` - Estimated wait time until connection.
 
 ---
 
