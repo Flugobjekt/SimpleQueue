@@ -5,8 +5,10 @@ import us.ajg0702.queue.api.*;
 import us.ajg0702.queue.api.premium.Logic;
 import us.ajg0702.queue.api.premium.LogicGetter;
 import us.ajg0702.queue.api.util.QueueLogger;
+import us.ajg0702.queue.common.utils.BossBarManager;
 import us.ajg0702.queue.common.utils.LogConverter;
 import us.ajg0702.queue.common.utils.SimpleQueueMessages;
+import us.ajg0702.queue.common.utils.SoundManager;
 import us.ajg0702.queue.logic.LogicGetterImpl;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -118,8 +120,21 @@ public class QueueMain extends AjQueueAPI {
         return slashServerManager;
     }
 
+    private final BossBarManager bossBarManager;
+    public BossBarManager getBossBarManager() {
+        return bossBarManager;
+    }
+
+    private final SoundManager soundManager;
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
+
     @Override
     public void shutdown() {
+        if(bossBarManager != null) {
+            bossBarManager.removeAll();
+        }
         taskManager.shutdown();
         updater.shutdown();
     }
@@ -148,6 +163,9 @@ public class QueueMain extends AjQueueAPI {
         this.logger = logger;
         this.platformMethods = platformMethods;
         this.dataFolder = dataFolder;
+
+        this.bossBarManager = new BossBarManager(this);
+        this.soundManager = new SoundManager(this);
 
         constructMessages();
 

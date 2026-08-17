@@ -365,6 +365,9 @@ public class QueueServerImpl implements QueueServer {
     public synchronized void removePlayer(QueuePlayer player) {
         main.getQueueManager().getSendingAttempts().remove(player);
         queue.remove(player);
+        if(main.getBossBarManager() != null && player != null) {
+            main.getBossBarManager().removeBossBar(player.getPlayer());
+        }
     }
 
     @Override

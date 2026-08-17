@@ -226,6 +226,9 @@ public class QueueManagerImpl implements QueueManager {
         if(!server.isJoinable(player)) {
             sendMessage(queuePlayer);
         }
+        if(main.getSoundManager() != null) {
+            main.getSoundManager().playJoinSound(player);
+        }
         main.getPlatformMethods().sendPluginMessage(player, "position", pos+"");
         main.getPlatformMethods().sendPluginMessage(player, "positionof", len+"");
         main.getPlatformMethods().sendPluginMessage(player, "queuename", server.getAlias());
@@ -341,6 +344,7 @@ public class QueueManagerImpl implements QueueManager {
 
     @Override
     public void sendActionBars() {
+        sendBossBars();
         if(!main.getConfig().getBoolean("send-actionbar")) return;
 
         for(QueueServer server : servers) {
@@ -376,6 +380,30 @@ public class QueueManagerImpl implements QueueManager {
                     ));
                 }
 
+            }
+        }
+    }
+
+    public void sendBossBars() {
+        if(main.getBossBarManager() == null) return;
+        if(!main.getConfig().getBoolean("bossbar.enabled")) return;
+
+        for(QueueServer server : servers) {
+            String status = server.getStatusString();
+            for(QueuePlayer queuePlayer : server.getQueue()) {
+                int pos = queuePlayer.getPosition();
+                if(pos == 0) continue;
+
+                AdaptedPlayer player = queuePlayer.getPlayer();
+                if(player == null) continue;
+
+                QueueServer singleServer = getSingleServer(player);
+                if(singleServer == null || !singleServer.equals(server)) continue;
+
+                int time = (int) Math.round(pos * main.getTimeBetweenPlayers());
+                String timeStr = TimeUtils.timeString(time, msgs.getString("format.time.mins"), msgs.getString("format.time.secs"));
+
+                main.getBossBarManager().updateBossBar(player, server, pos, server.getQueue().size(), timeStr, status);
             }
         }
     }
@@ -649,6 +677,12 @@ public class QueueManagerImpl implements QueueManager {
                 continue;
             }
             server.setLastSentTime(System.currentTimeMillis());
+            if(main.getSoundManager() != null) {
+                main.getSoundManager().playSendSound(nextPlayer);
+            }
+            if(main.getBossBarManager() != null) {
+                main.getBossBarManager().removeBossBar(nextPlayer);
+            }
             nextPlayer.connect(selected);
             server.addPlayer(selected);
             if(main.getConfig().getBoolean("debug")) {

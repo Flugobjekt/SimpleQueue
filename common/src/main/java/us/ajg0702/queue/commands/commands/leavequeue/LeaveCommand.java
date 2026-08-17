@@ -64,6 +64,9 @@ public class LeaveCommand extends BaseCommand {
 
         if(servers.size() == 1) {
             servers.get(0).removePlayer(player);
+            if(main.getSoundManager() != null) {
+                main.getSoundManager().playLeaveSound(player);
+            }
             sender.sendMessage(getMessages().getComponent("commands.leave-queue", "SERVER:"+servers.get(0).getAlias()));
             return;
         }
@@ -88,6 +91,9 @@ public class LeaveCommand extends BaseCommand {
 
 
         leavingServer.removePlayer(queuePlayer);
+        if(main.getSoundManager() != null) {
+            main.getSoundManager().playLeaveSound(player);
+        }
         sender.sendMessage(getMessages().getComponent("commands.leave-queue", "SERVER:"+leavingServer.getAlias()));
 
     }

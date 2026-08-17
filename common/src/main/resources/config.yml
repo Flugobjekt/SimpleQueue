@@ -40,6 +40,45 @@ queue-servers:
 # The actionbar contains some info such as which server they are queued for, what position they are in, estimated time remaining, etc.
 send-actionbar: true
 
+# BossBar configuration while waiting in the queue
+# Displays an animated BossBar showing queue progress and position
+bossbar:
+  # Enable or disable the BossBar
+  enabled: true
+  # Text displayed on the BossBar (supports MiniMessage and placeholders: {SERVER}, {SERVERNAME}, {POS}, {LEN}, {TIME}, {STATUS})
+  text: "<#FFB900><bold>{SERVER}</bold></#FFB900> &8| &7Position: &f{POS}&7/&f{LEN} &8(&e{TIME}&8)"
+  # BossBar color: PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE
+  color: "YELLOW"
+  # BossBar style: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
+  style: "PROGRESS"
+
+# Sound effects for queue actions (played via Adventure audio)
+sounds:
+  # Sound played when a player enters a queue
+  join:
+    enabled: true
+    sound: "minecraft:entity.experience_orb.pickup"
+    volume: 1.0
+    pitch: 1.2
+  # Sound played when a player is being sent to the target server
+  send:
+    enabled: true
+    sound: "minecraft:entity.player.levelup"
+    volume: 1.0
+    pitch: 1.0
+  # Sound played when a player leaves a queue
+  leave:
+    enabled: true
+    sound: "minecraft:ui.button.click"
+    volume: 0.8
+    pitch: 0.8
+  # Sound played on position update (optional)
+  position-update:
+    enabled: false
+    sound: "minecraft:block.note_block.pling"
+    volume: 0.8
+    pitch: 1.0
+
 # What kick reasons should cause the player to be removed from the queue?
 # For example, if one of the below kick reasons is 'banned' and the player gets kicked when trying to connect to
 #  a server in a queue with a message saying "You are banned from this server!" then it will kick them from the queue too.
