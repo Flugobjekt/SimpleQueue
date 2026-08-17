@@ -8,7 +8,7 @@ group = "us.ajg0702.queue"
 
 repositories {
     //mavenLocal()
-    maven { url = uri("https://repo.ajg0702.us") }
+    maven { url = uri("https://repo.ajg0702.us/releases") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
     mavenCentral()
 }
@@ -39,7 +39,7 @@ tasks.shadowJar {
     relocate("io.leangen.geantyref", "us.ajg0702.queue.libs.geantyref")
     relocate("org.spongepowered", "us.ajg0702.queue.libs.sponge")
     relocate("org.yaml", "us.ajg0702.queue.libs.yaml")
-    archiveBaseName.set("ajQueuePlus")
+    archiveBaseName.set("SimpleQueuePlus")
     archiveClassifier.set("")
 }
 

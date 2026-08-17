@@ -39,7 +39,7 @@ public class QueueServerImpl implements QueueServer {
             String balancerType = type.substring(colon+1);
 
             if(groupName.equals(name)) {
-                //noinspection SwitchStatementWithTooFewBranches
+
                 switch(balancerType.toLowerCase(Locale.ROOT)) {
                     case "minigame":
                         balancer = new MinigameBalancer(this, main);

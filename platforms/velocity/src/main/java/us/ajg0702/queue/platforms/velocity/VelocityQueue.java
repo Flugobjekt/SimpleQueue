@@ -30,19 +30,22 @@ import us.ajg0702.queue.platforms.velocity.commands.VelocityCommand;
 import us.ajg0702.queue.platforms.velocity.players.VelocityPlayer;
 import us.ajg0702.queue.platforms.velocity.server.VelocityServer;
 
+import com.velocitypowered.api.event.player.ServerPreConnectEvent;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import us.ajg0702.queue.api.queues.QueueServer;
+
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Plugin(
-        id = "ajqueue",
-        name = "ajQueue",
+        id = "simplequeue",
+        name = "SimpleQueue",
         version = "@VERSION@",
         url = "https://ajg0702.us",
         description = "Queue for servers",
-        authors = {"ajgeiss0702"}
+        authors = {"Flugobjekt"}
 )
 
 public class VelocityQueue implements Implementation {
@@ -54,6 +57,16 @@ public class VelocityQueue implements Implementation {
     final File dataFolder;
 
     private final Metrics.Factory metricsFactory;
+
+    private static final Set<UUID> allowedConnects = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    public static void allowNextConnect(UUID playerUuid) {
+        allowedConnects.add(playerUuid);
+    }
+
+    public static boolean consumeAllowedConnect(UUID playerUuid) {
+        return allowedConnects.remove(playerUuid);
+    }
 
     @Inject
     public VelocityQueue(ProxyServer proxyServer, Logger logger, @DataDirectory Path dataFolder, Metrics.Factory metricsFactory) {
@@ -89,6 +102,8 @@ public class VelocityQueue implements Implementation {
         );
 
 
+        proxyServer.getChannelRegistrar().register(MinecraftChannelIdentifier.create("simplequeue", "tospigot"));
+        proxyServer.getChannelRegistrar().register(MinecraftChannelIdentifier.from("simplequeue:toproxy"));
         proxyServer.getChannelRegistrar().register(MinecraftChannelIdentifier.create("ajqueue", "tospigot"));
         proxyServer.getChannelRegistrar().register(MinecraftChannelIdentifier.from("ajqueue:toproxy"));
 
@@ -112,11 +127,11 @@ public class VelocityQueue implements Implementation {
     @Subscribe
     public void onPluginMessage(PluginMessageEvent e) {
 
-        if(e.getIdentifier().getId().equals("ajqueue:tospigot")) {
+        if(e.getIdentifier().getId().equals("ajqueue:tospigot") || e.getIdentifier().getId().equals("simplequeue:tospigot")) {
             e.setResult(PluginMessageEvent.ForwardResult.handled());
             return;
         }
-        if(!e.getIdentifier().getId().equals("ajqueue:toproxy")) return;
+        if(!e.getIdentifier().getId().equals("ajqueue:toproxy") && !e.getIdentifier().getId().equals("simplequeue:toproxy")) return;
         e.setResult(PluginMessageEvent.ForwardResult.handled());
 
         if(!(e.getTarget() instanceof Player)) return;
@@ -124,10 +139,56 @@ public class VelocityQueue implements Implementation {
         main.getEventHandler().handleMessage(new VelocityPlayer((Player) e.getTarget()), e.getData());
     }
 
+    @Subscribe
+    public void onPreConnect(ServerPreConnectEvent e) {
+        Player player = e.getPlayer();
+        if (consumeAllowedConnect(player.getUniqueId())) {
+            return;
+        }
+
+        if (!player.getCurrentServer().isPresent()) {
+            return;
+        }
+
+        if (!main.getConfig().getBoolean("intercept-server-switch")) {
+            return;
+        }
+
+        RegisteredServer target = e.getOriginalServer();
+        if (target == null) {
+            return;
+        }
+
+        String currentServerName = player.getCurrentServer().get().getServerInfo().getName();
+        String targetName = target.getServerInfo().getName();
+
+        if (currentServerName.equalsIgnoreCase(targetName)) {
+            return;
+        }
+
+        if (player.hasPermission("simplequeue.bypass") ||
+                player.hasPermission("ajqueue.bypass") ||
+                player.hasPermission("simplequeue.serverbypass." + targetName) ||
+                player.hasPermission("ajqueue.serverbypass." + targetName) ||
+                player.hasPermission("simplequeue.joinfullandbypass") ||
+                player.hasPermission("ajqueue.joinfullandbypass") ||
+                player.hasPermission("simplequeue.joinfullandbypassserver." + targetName) ||
+                player.hasPermission("ajqueue.joinfullandbypassserver." + targetName)) {
+            return;
+        }
+
+        e.setResult(ServerPreConnectEvent.ServerResult.denied());
+
+        QueueServer queueServer = main.getQueueManager().findServer(targetName);
+        if (queueServer != null) {
+            main.getQueueManager().addToQueue(new VelocityPlayer(player), queueServer);
+        }
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     @Subscribe
     public void onJoin(ServerPostConnectEvent e) {
-        if(e.getPreviousServer() == null) { // only run if the player just joined
+        if(e.getPreviousServer() == null) { 
             main.getEventHandler().onPlayerJoin(new VelocityPlayer(e.getPlayer()));
         }
         main.getEventHandler().onPlayerJoinServer(new VelocityPlayer(e.getPlayer()));
@@ -140,13 +201,13 @@ public class VelocityQueue implements Implementation {
 
     @Subscribe
     public void onKick(KickedFromServerEvent e) {
-        if(!e.getPlayer().getCurrentServer().isPresent()) return; // if the player is kicked on initial join, we dont care
+        if(!e.getPlayer().getCurrentServer().isPresent()) return; 
         Optional<Component> reasonOptional = e.getServerKickReason();
         main.getEventHandler().onServerKick(
                 new VelocityPlayer(e.getPlayer()),
                 new VelocityServer(e.getServer()),
                 reasonOptional.orElseGet(() -> Component.text("Proxy lost connection")),
-                // According to Tux on discord, velocity doesnt give a reason when the proxy loses connection to the connected server
+
                 e.kickedDuringServerConnect()
         );
     }

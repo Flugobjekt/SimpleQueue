@@ -22,32 +22,32 @@ import java.util.HashMap;
 
 @SuppressWarnings("UnstableApiUsage")
 public class SpigotMain extends JavaPlugin implements PluginMessageListener,Listener {
-	
+
 	boolean papi = false;
 	Placeholders placeholders;
-	
+
 	ConfigFile config;
 
 	boolean hasProxy = false;
-	
+
 	@SuppressWarnings("ConstantConditions")
 	public void onEnable() {
 		getServer().getMessenger().registerIncomingPluginChannel(this, "ajqueue:tospigot", this);
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "ajqueue:toproxy");
-		
+
 		this.getCommand("move").setExecutor(new Commands(this));
 		this.getCommand("leavequeue").setExecutor(new Commands(this));
-		
+
 		Bukkit.getPluginManager().registerEvents(this, this);
-		
+
 		papi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
-		
+
 		if(papi) {
 			placeholders = new Placeholders(this);
 			placeholders.register();
 			getLogger().info("Registered PlaceholderAPI placeholders");
 		}
-		
+
 		Bukkit.getScheduler().runTaskTimer(this, () -> {
 			if(Bukkit.getOnlinePlayers().size() <= 0 || queuebatch.size() <= 0) return;
 			StringBuilder msg = new StringBuilder();
@@ -64,7 +64,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 
 		File oldConfig = new File(getDataFolder(), "config.yml");
 		if(oldConfig.exists()) {
-			//noinspection ResultOfMethodCallIgnored
+
 			oldConfig.renameTo(new File(getDataFolder(), "spigot-config.yml"));
 		}
 
@@ -87,9 +87,9 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
 		if (!channel.equals("ajqueue:tospigot")) return;
-		
+
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
-		
+
 	    String subchannel = in.readUTF();
 
 	    if(subchannel.equals("ack")) {
@@ -108,7 +108,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    	Player p = Bukkit.getPlayer(playername);
 	    	if(p == null) return;
 	    	if(!p.isOnline()) return;
-	    	
+
 	    	String data = in.readUTF();
 	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
 	    	if(phs == null) phs = new HashMap<>();
@@ -120,7 +120,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    	Player p = Bukkit.getPlayer(playername);
 	    	if(p == null) return;
 	    	if(!p.isOnline()) return;
-	    	
+
 	    	String data = in.readUTF();
 	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
 	    	if(phs == null) phs = new HashMap<>();
@@ -132,7 +132,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    	Player p = Bukkit.getPlayer(playername);
 	    	if(p == null) return;
 	    	if(!p.isOnline()) return;
-	    	
+
 	    	String data = in.readUTF();
 	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
 	    	if(phs == null) phs = new HashMap<>();
@@ -144,7 +144,7 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    	Player p = Bukkit.getPlayer(playername);
 	    	if(p == null) return;
 	    	if(!p.isOnline()) return;
-	    	
+
 	    	String data = in.readUTF();
 	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
 	    	if(phs == null) phs = new HashMap<>();
@@ -154,11 +154,11 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 	    if(subchannel.equals("queuedfor")) {
 	    	String playername = in.readUTF();
 	    	String queuename = in.readUTF();
-	    	
+
 	    	Player p = Bukkit.getPlayer(playername);
 	    	if(p == null) return;
 	    	if(!p.isOnline()) return;
-	    	
+
 	    	int number = Integer.parseInt(in.readUTF());
 	    	HashMap<String, String> phs = placeholders.responseCache.get(p);
 	    	if(phs == null) phs = new HashMap<>();
@@ -193,25 +193,25 @@ public class SpigotMain extends JavaPlugin implements PluginMessageListener,List
 			placeholders.responseCache.put(p, phs);
 		}
 	}
-	
-	
+
+
 	public void sendMessage(Player player, String subchannel, String data) {
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
 		out.writeUTF(subchannel);
 		out.writeUTF(data);
-		
+
 		player.sendPluginMessage(this, "ajqueue:toproxy", out.toByteArray());
 	}
-	
+
 	public void sendMessage(String subchannel, String data) {
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
 		out.writeUTF(subchannel);
 		out.writeUTF(data);
-		
+
 		Bukkit.getOnlinePlayers().iterator().next()
 		.sendPluginMessage(this, "ajqueue:toproxy", out.toByteArray());
 	}
-	
+
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		if(!papi) return;

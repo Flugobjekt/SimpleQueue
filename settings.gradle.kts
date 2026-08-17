@@ -1,4 +1,4 @@
-rootProject.name = "ajQueue"
+rootProject.name = "SimpleQueue"
 
 include(":api")
 include(":common")

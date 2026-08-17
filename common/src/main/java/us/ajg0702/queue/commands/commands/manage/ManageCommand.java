@@ -21,7 +21,7 @@ public class ManageCommand extends BaseCommand {
     public ManageCommand(QueueMain main) {
         this.main = main;
 
-        //debug commands
+
         addSubCommand(new Protocol(main));
         addSubCommand(new ISP(main));
         addSubCommand(new PermissionList(main));
@@ -29,7 +29,7 @@ public class ManageCommand extends BaseCommand {
         addSubCommand(new Version(main));
         addSubCommand(new Whitelist(main));
 
-        //normal commands
+
         addSubCommand(new Reload(main));
         addSubCommand(new Pause(main));
         addSubCommand(new QueueList(main));
@@ -42,12 +42,12 @@ public class ManageCommand extends BaseCommand {
 
     @Override
     public String getName() {
-        return "ajqueue";
+        return "simplequeue";
     }
 
     @Override
     public ImmutableList<String> getAliases() {
-        return ImmutableList.of("ajq");
+        return ImmutableList.of("sq", "ajqueue", "ajq");
     }
 
     final List<ISubCommand> subCommands = new ArrayList<>();
@@ -82,7 +82,7 @@ public class ManageCommand extends BaseCommand {
                 }
             }
         }
-        sender.sendMessage(Component.text("/ajQueue <reload|list|send|pause>"));
+        sender.sendMessage(Component.text("/simplequeue <reload|list|send|pause>"));
     }
 
     @Override

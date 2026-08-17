@@ -16,6 +16,7 @@ import us.ajg0702.queue.api.players.AdaptedPlayer;
 import us.ajg0702.queue.api.server.AdaptedServer;
 import us.ajg0702.queue.common.QueueMain;
 import us.ajg0702.queue.common.utils.Debug;
+import us.ajg0702.queue.platforms.velocity.VelocityQueue;
 
 import java.util.List;
 import java.util.Optional;
@@ -122,6 +123,7 @@ public class VelocityPlayer implements AdaptedPlayer, Audience {
 
     @Override
     public void connect(AdaptedServer server) {
+        VelocityQueue.allowNextConnect(handle.getUniqueId());
         Debug.info("Attempting to send "+getName()+" to "+server.getName());
         handle.createConnectionRequest((RegisteredServer) server.getHandle()).connect().thenAcceptAsync(
                 result -> {

@@ -210,7 +210,7 @@ public class EventHandlerImpl implements EventHandler {
         if(!player.isConnected()) return;
 
         String plainReason = PlainTextComponentSerializer.plainText().serialize(reason);
-        
+
         Debug.info(player.getName()+" kicked! Moving: "+moving+" from: "+from.getName()+" plainReason: "+plainReason    );
 
         if(!moving && main.getConfig().getBoolean("send-fail-debug")) {

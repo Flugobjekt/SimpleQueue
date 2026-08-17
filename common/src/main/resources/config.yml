@@ -2,16 +2,25 @@
 config-version: 34
 
 
-# This is the main config for ajQueue.
-# If you have any questions, make sure to read the comment above the options first,
-#  then feel free to join my discord and ask for support.
-# Discord invite link is on the plugin page.
+# This is the main config for SimpleQueue.
+# If you have any questions, make sure to read the comment above the options first.
 
+# The prefix for all SimpleQueue chat messages
+# Supports MiniMessage (e.g. <#FFB900><bold>QUEUE</bold> <dark_gray>»</dark_gray> ) and legacy/HEX color codes (e.g. &#FFB900&lQUEUE &8» )
+prefix: "&#FFB900&lQUEUE &8» "
 
+# Should the prefix automatically be prepended to chat messages?
+#  Default: true
+use-prefix: true
 
-# The time the server will wait between sending people in the queue
-#  Default: 5
-wait-time: 5.0
+# The time the server will wait between sending people in the queue (in seconds)
+#  Default: 3.0
+wait-time: 3.0
+
+# Automatically put players into the queue when they try to switch/connect to another server
+# (e.g. via /server, compass, NPC, portal, or other plugins)
+#  Default: true
+intercept-server-switch: true
 
 # The time that a server has to be offline to be marked as offline instead of restarting
 #  Default: 120

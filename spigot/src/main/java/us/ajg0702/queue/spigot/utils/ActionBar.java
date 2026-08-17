@@ -6,11 +6,11 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-/**
- * A cross-version actionbar class
- * @author Based on ActionBarAPI from <a href="https://github.com/ConnorLinfoot">ConnorLinfoot</a>
- *
- */
+
+
+
+
+
 public class ActionBar {
 
     public static void send(Player player, String message) {
@@ -21,7 +21,7 @@ public class ActionBar {
         version = version.substring(version.lastIndexOf(".") + 1);
 
         boolean old = version.equalsIgnoreCase("v1_8_R1") || version.startsWith("v1_7_");
-		
+
 		try {
             Class<?> craftPlayerClass = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
             Object craftPlayer = craftPlayerClass.cast(player);
@@ -59,10 +59,10 @@ public class ActionBar {
             Object playerConnection = playerConnectionField.get(craftPlayerHandle);
             Method sendPacketMethod = playerConnection.getClass().getDeclaredMethod("sendPacket", packetClass);
             sendPacketMethod.invoke(playerConnection, packet);
-            
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

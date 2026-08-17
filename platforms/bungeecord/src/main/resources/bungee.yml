@@ -1,4 +1,4 @@
-name: ajQueue
+name: SimpleQueue
 version: "@VERSION@"
 main: us.ajg0702.queue.platforms.bungeecord.BungeeQueue
 author: ajgeiss0702

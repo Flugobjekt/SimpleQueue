@@ -1,8 +1,8 @@
 main: us.ajg0702.queue.spigot.SpigotMain
 version: "@VERSION@"
-api-version: 1.13
-author: ajgeiss0702
-name: ajQueue
+api-version: 1.21
+author: Flugobjekt
+name: SimpleQueue
 softdepend: [PlaceholderAPI]
 commands:
    queue:

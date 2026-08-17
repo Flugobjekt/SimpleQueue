@@ -49,6 +49,7 @@ public class VelocityMethods implements PlatformMethods {
         if(!server.isPresent()) {
             throw new IllegalStateException("No server to send data to");
         }
+        server.get().sendPluginMessage(MinecraftChannelIdentifier.from("simplequeue:tospigot"), out.toByteArray());
         server.get().sendPluginMessage(MinecraftChannelIdentifier.from("ajqueue:tospigot"), out.toByteArray());
     }
 
@@ -62,7 +63,8 @@ public class VelocityMethods implements PlatformMethods {
 
     @Override
     public String getPluginVersion() {
-        Optional<PluginContainer> plugin = proxyServer.getPluginManager().getPlugin("ajqueue");
+        Optional<PluginContainer> plugin = proxyServer.getPluginManager().getPlugin("simplequeue");
+        if(!plugin.isPresent()) plugin = proxyServer.getPluginManager().getPlugin("ajqueue");
         if(!plugin.isPresent()) return "?E";
         Optional<String> version = plugin.get().getDescription().getVersion();
         return version.orElse("?V");

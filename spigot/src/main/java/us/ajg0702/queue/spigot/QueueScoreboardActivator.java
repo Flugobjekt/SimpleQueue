@@ -15,13 +15,13 @@ public class QueueScoreboardActivator extends Event {
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
-    
+
     final Player ply;
-    
+
     public QueueScoreboardActivator(Player p) {
     	this.ply = p;
     }
-    
+
     public Player getPlayer() {
     	return ply.getPlayer();
     }

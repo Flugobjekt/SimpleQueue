@@ -140,7 +140,7 @@ public class BungeeQueue extends Plugin implements Listener, Implementation {
     @EventHandler
     public void onKick(ServerKickEvent e) {
         if(!e.getPlayer().isConnected()) return;
-        if(e.getPlayer().getServer() == null) return; // if the player is kicked on initial join, we dont care
+        if(e.getPlayer().getServer() == null) return; 
         ProxyServer.getInstance().getScheduler().runAsync(this, () -> {
             Component reason = BungeeComponentSerializer.get().deserialize(e.getKickReasonComponent());
             main.getEventHandler().onServerKick(

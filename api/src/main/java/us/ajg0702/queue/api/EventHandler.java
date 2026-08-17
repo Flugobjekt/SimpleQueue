@@ -12,10 +12,10 @@ public interface EventHandler {
 
     void onPlayerLeave(AdaptedPlayer player);
 
-    /**
-     * Called when a player joins a server or switches between servers
-     * @param player the player
-     */
+
+
+
+
     void
     onPlayerJoinServer(AdaptedPlayer player);
 

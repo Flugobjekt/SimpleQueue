@@ -577,10 +577,10 @@ public class QueueManagerImpl implements QueueManager {
             AdaptedPlayer nextPlayer = nextQueuePlayer.getPlayer();
 
 
-            // If the first person int the queue is offline or already in the server, find the next online player in the queue
+
             int i = 0;
             while((nextPlayer == null || server.getServerNames().contains(nextPlayer.getServerName())) && i < server.getQueue().size()) {
-                if(nextPlayer != null) { // Remove them if they are already in the server
+                if(nextPlayer != null) { 
                     server.removePlayer(nextQueuePlayer);
                     if(server.getQueue().size() > i) {
                         nextQueuePlayer = server.getQueue().get(i);
@@ -599,7 +599,7 @@ public class QueueManagerImpl implements QueueManager {
                 }
             }
 
-            if(nextPlayer == null) continue; // None of the players in the queue are online
+            if(nextPlayer == null) continue; 
 
             if(server.isWhitelisted() && !server.getWhitelistedPlayers().contains(nextPlayer.getUniqueId())) continue;
 

@@ -6,6 +6,7 @@ import us.ajg0702.queue.api.premium.Logic;
 import us.ajg0702.queue.api.premium.LogicGetter;
 import us.ajg0702.queue.api.util.QueueLogger;
 import us.ajg0702.queue.common.utils.LogConverter;
+import us.ajg0702.queue.common.utils.SimpleQueueMessages;
 import us.ajg0702.queue.logic.LogicGetterImpl;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.Messages;
@@ -164,7 +165,7 @@ public class QueueMain extends AjQueueAPI {
         slashServerManager = new SlashServerManager(this);
 
 
-        //noinspection ResultOfMethodCallIgnored
+
         messages.getComponent("one").replaceText(b -> b.match(Pattern.compile("\\e")).replacement("a"));
 
         setTimeBetweenPlayers();
@@ -175,7 +176,7 @@ public class QueueMain extends AjQueueAPI {
 
         taskManager.rescheduleTasks();
 
-        updater = new Updater(logger, platformMethods.getPluginVersion(), isPremium() ? "ajQueuePlus" : "ajQueue", config.getBoolean("enable-updater"), isPremium() ? 79123 : 78266, dataFolder.getParentFile(), "ajQueue update");
+        updater = new Updater(logger, platformMethods.getPluginVersion(), isPremium() ? "SimpleQueuePlus" : "SimpleQueue", config.getBoolean("enable-updater"), isPremium() ? 79123 : 78266, dataFolder.getParentFile(), "SimpleQueue update");
 
     }
 
@@ -210,11 +211,11 @@ public class QueueMain extends AjQueueAPI {
         d.put("commands.leave-queue", "&aYou left the queue for {SERVER}!");
         d.put("commands.reload", "&aConfig and messages reloaded successfully!");
         d.put("commands.joinqueue.usage", "&cUsage: /joinqueue <server>");
-        d.put("commands.kick.usage", "<red>Usage: /ajqueue kick <player> [queue]");
+        d.put("commands.kick.usage", "<red>Usage: /simplequeue kick <player> [queue]");
         d.put("commands.kick.no-player", "&cCould not find {PLAYER}! Make sure they are in a queue!");
         d.put("commands.kick.unknown-server", "&cCould not find queue {QUEUE}. Make sure you spelled it correctly!");
         d.put("commands.kick.success", "<green>Kicked <white>{PLAYER} <green>from {NUM} queue{s}!");
-        d.put("commands.kickall.usage", "<red>Usage: /ajqueue kickall <queue>");
+        d.put("commands.kickall.usage", "<red>Usage: /simplequeue kickall <queue>");
         d.put("commands.kickall.success", "<green>Kicked <white>{NUM} <green>player{s} from <white>{SERVER}<green>!");
 
         d.put("noperm", "&cYou do not have permission to do this!");
@@ -255,14 +256,14 @@ public class QueueMain extends AjQueueAPI {
         d.put("commands.leave.not-queued", "&cYou are not queued for that server! &7You are in these queues: {QUEUES}");
         d.put("commands.leave.no-queues", "&cYou are not queued!");
 
-        d.put("commands.pause.more-args", "&cUsage: /ajqueue pause <server> [on/off]");
+        d.put("commands.pause.more-args", "&cUsage: /simplequeue pause <server> [on/off]");
         d.put("commands.pause.no-server", "&cThat server does not exist!");
         d.put("commands.pause.success", "&aThe queue for &f{SERVER} &ais now {PAUSED}");
         d.put("commands.pause.paused.true", "&epaused");
         d.put("commands.pause.paused.false", "&aun-paused");
 
         d.put("commands.send.player-not-found", "&cThat player could not be found. Make sure they are online!");
-        d.put("commands.send.usage", "<red>Usage: /ajqueue send <player> <server>");
+        d.put("commands.send.usage", "<red>Usage: /simplequeue send <player> <server>");
 
         d.put("commands.listqueues.header", "&9Queues:");
         d.put("commands.listqueues.format", "<hover:show_text:'&7Status: {STATUS}'>{COLOR}{NAME}&7: {COUNT} queued</hover>");
@@ -274,9 +275,9 @@ public class QueueMain extends AjQueueAPI {
 
         d.put("updater.update-available",
                 "<gray><strikethrough>                                                         <reset>\n" +
-                        "  <green>An update is available for ajQueue!\n" +
+                        "  <green>An update is available for SimpleQueue!\n" +
                         "  <dark_green>You can download it by " +
-                        "<click:run_command:/ajqueue update><bold>clicking here</bold>\n    or running <gray>/ajQueue update</click>\n" +
+                        "<click:run_command:/simplequeue update><bold>clicking here</bold>\n    or running <gray>/simplequeue update</click>\n" +
                         "<gray><strikethrough>                                                         <reset>"
         );
         d.put("updater.no-update", "<red>There is not an update available");
@@ -284,6 +285,6 @@ public class QueueMain extends AjQueueAPI {
         d.put("updater.fail", "<red>An error occurred while downloading the update. Check the console for more info.");
         d.put("updater.already-downloaded", "<red>The update has already been downloaded.");
 
-        messages = new Messages(dataFolder, new LogConverter(logger), d);
+        messages = new SimpleQueueMessages(this, dataFolder, new LogConverter(logger), d);
     }
 }
